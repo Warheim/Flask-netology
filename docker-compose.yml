@@ -7,5 +7,5 @@ services:
       - '5431:5432'
     environment:
       POSTGRES_USER: warheim
-      POSTGRES_PASSWORD: 120290Vova
-      POSTGRES_DB: netology_rem
+      POSTGRES_PASSWORD: 120290
+      POSTGRES_DB: netology
