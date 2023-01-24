@@ -1,8 +1,21 @@
 from flask import Flask, request, jsonify
 from flask.views import MethodView
 from database import Session, UserModel
+from errors import HttpException
+from sqlalchemy.exc import IntegrityError
+from schema import validate, CreateUserSchema, PatchUserSchema
 
 app = Flask('app')
+
+
+@app.errorhandler(HttpException)
+def error_handler(error: HttpException):
+    http_response = jsonify({
+        'status': 'error',
+        'message': error.message
+    })
+    http_response.status_code = error.status_code
+    return http_response
 
 
 class UserOps(MethodView):
@@ -10,6 +23,11 @@ class UserOps(MethodView):
     def get(self, user_id: int):
         with Session() as session:
             user = session.query(UserModel).get(user_id)
+            if user is None:
+                raise HttpException(
+                    status_code=404,
+                    message='user not found'
+                )
             return jsonify({
                 'id': user.id,
                 'email': user.email,
@@ -17,11 +35,17 @@ class UserOps(MethodView):
             })
 
     def post(self):
-        user_data = request.json
+        user_data = validate(request.json, CreateUserSchema)
         with Session() as session:
             new_user = UserModel(**user_data)
             session.add(new_user)
-            session.commit()
+            try:
+                session.commit()
+            except IntegrityError:
+                raise HttpException(
+                    status_code=409,
+                    message='user with such email already exists'
+                )
             return jsonify({'id': new_user.id})
 
     def patch(self):

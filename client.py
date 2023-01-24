@@ -2,7 +2,7 @@ import requests
 
 
 # response = requests.post('http://127.0.0.1:5000/users/',
-#                          json={'email': 'some@email.com', 'password': '123'})
+#                          json={'email': 'warheim@email.com', 'password': '120290Vova!'})
 
 response = requests.get('http://127.0.0.1:5000/users/1')
 
