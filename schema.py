@@ -3,6 +3,7 @@ import re
 from typing import Type, Optional
 from errors import HttpException
 
+
 password_regex = re.compile("^(?=.*[a-z_])(?=.*\d)(?=.*[@$!%*#?&_])[A-Za-z\d@$!#%*?&_]{8,50}$")
 
 
@@ -32,8 +33,8 @@ class PatchUserSchema(BaseModel):
         return check_password(value)
 
 
-def validate(data_to_validate: dict, validation_model: Type[CreateUserSchema]):
+def validate(data_to_validate: dict, validation_model: Type[CreateUserSchema] | Type[PatchUserSchema]):
     try:
-        return validation_model(**data_to_validate).dict()
+        return validation_model(**data_to_validate).dict(exclude_none=True)
     except ValidationError as er:
         raise HttpException(400, er.errors())
